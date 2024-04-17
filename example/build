@@ -1,0 +1,6 @@
+EXAMPLES=$(ls -1 --color=never *.c | sed 's/\.c//')
+
+for EXAMPLE in $EXAMPLES
+do
+	gcc -g -fno-fast-math -O0 -o $EXAMPLE $EXAMPLE.c -lm
+done
