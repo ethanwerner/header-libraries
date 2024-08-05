@@ -46,6 +46,7 @@ double ga_generation(ga_individual_t *, uint32_t, double, double, ga_fitness_t,
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <tgmath.h>
 
 // ga_finess_sort()
 //
@@ -68,11 +69,10 @@ static double ga_fitness_sort(ga_individual_t *population,
   // Insertion sort
   uint32_t i, j, k;
   for (i = 0; i < population_n; i++) {
-    fitness_current = fitness(population[i], fitness_data);
+    fitness_current = fabs(fitness(population[i], fitness_data));
     individual = population[i];
-
-    // for (j = i; j > 0 && abs(fitness_current) > fitness_buffer[j - 1]; j--) {
-    for (j = i; j > 0 && abs(fitness_current) < fitness_buffer[j - 1]; j--) {
+    // for (j = i; j > 0 && fitness_current > fitness_buffer[j - 1]; j--) {
+    for (j = i; j > 0 && fitness_current < fitness_buffer[j - 1]; j--) {
     }
 
     // Shift array back by one for sorting
@@ -84,6 +84,10 @@ static double ga_fitness_sort(ga_individual_t *population,
     population[j] = individual;
     fitness_buffer[j] = fitness_current;
   }
+
+  // for (i = 0; i < population_n; i++) {
+  //   printf("%u - %lf\n", i, fitness_buffer[i]);
+  // }
 
   double error = fitness_buffer[0];
   free(fitness_buffer);
