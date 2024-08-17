@@ -41,7 +41,7 @@ static void pool_free_list(uintptr_t *, uint32_t, uint32_t);
 // block_s - The size of a block in bytes
 // block_n - The number of initial blocks
 
-pool_t *pool_init(uint32_t block_n, uint32_t block_s) {
+pool_t *pool_init( uint32_t block_s, uint32_t block_n) {
   pool_t *pool = (pool_t *)malloc(sizeof(pool_t));
 
   // Set size and count
@@ -52,7 +52,6 @@ pool_t *pool_init(uint32_t block_n, uint32_t block_s) {
   pool->free = pool->data;
 
   pool_free_list((uintptr_t *)pool->data, block_n, block_s);
-  pool_print(pool);
 
   return pool;
 }
@@ -102,11 +101,11 @@ uint32_t pool_size(pool_t *pool) {
 }
 
 static void pool_print(pool_t *pool) {
-  uintptr_t *c = (uintptr_t *)pool->free;
-  while (((uintptr_t)c - (uintptr_t)pool->data) <
+  uintptr_t *ptr = (uintptr_t *)pool->free;
+  while (((uintptr_t)ptr - (uintptr_t)pool->data) <
          pool->block_n * pool->block_s) {
-    printf("%p %lx\n", c, *c);
-    c++;
+    printf("%p %lx\n", ptr, *ptr);
+    ptr = (uintptr_t *)(((uint8_t *)ptr) + pool->block_s);
   }
 }
 
