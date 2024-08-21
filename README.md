@@ -1,4 +1,4 @@
-# Single File Libraries
+# C Header Libraries
 
 The following libraries are *highly* experimental and should be treated as such. The intent of this repository is archival in nature. While I do use many of the following libraries in my projects, they are not production ready.
 
@@ -64,7 +64,6 @@ An implementation of a genetic algorithm. The library exposes a single function 
 **3. Fitness**
 
 - Sort the population by descending fitness, in preparation for the next generation.
-
 
 ## pool.h - Memory Pool
 
