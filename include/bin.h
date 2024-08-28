@@ -7,24 +7,26 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "type.h"
+
 typedef struct {
-  uint64_t length;
-  uint64_t block_size;
+  uint_t length;
+  uint_t block_size;
 } bin_meta_t;
 
-FILE *bin_init(char const *, uint64_t);
+FILE *bin_init(char const *, uint_t);
 FILE *bin_open(char const *path);
 void bin_close(FILE *);
-void bin_read(FILE *, int64_t, void *, uint64_t);
-void bin_write(FILE *, int64_t, void *, uint64_t);
-void bin_insert(FILE *, int64_t, void *, uint64_t);
-void bin_append(FILE *, void *, uint64_t);
+void bin_read(FILE *, int_t, void *, uint_t);
+void bin_write(FILE *, int_t, void *, uint_t);
+void bin_insert(FILE *, int_t, void *, uint_t);
+void bin_append(FILE *, void *, uint_t);
 
-uint64_t bin_length(FILE *);
-uint64_t bin_block_size(FILE *);
+uint_t bin_length(FILE *);
+uint_t bin_block_size(FILE *);
 
-int64_t bin_search(FILE *, bin_key_t);
-uint64_t bin_fuzzy_index(int64_t);
+int_t bin_search(FILE *, bin_key_t);
+uint_t bin_fuzzy_index(int_t);
 
 #endif // BIN_H
 
@@ -33,8 +35,8 @@ uint64_t bin_fuzzy_index(int64_t);
 #include <assert.h>
 #include <stdlib.h>
 
-static void bin_write_length(FILE *, uint64_t);
-static void bin_write_block_size(FILE *, uint64_t);
+static void bin_write_length(FILE *, uint_t);
+static void bin_write_block_size(FILE *, uint_t);
 
 #define index_bytes(i, bs) ((i * bs) + sizeof(bin_meta_t))
 
@@ -48,7 +50,7 @@ static void bin_write_block_size(FILE *, uint64_t);
 //
 // return - The newly created file
 
-FILE *bin_init(char const *path, uint64_t block_size) {
+FILE *bin_init(char const *path, uint_t block_size) {
   FILE *f = fopen(path, "wb+");
 
   if (!f)
@@ -98,8 +100,8 @@ void bin_close(FILE *f) { fclose(f); }
 // data - The block_t buffer to be read into
 // n - The number of elements to read into the buffer
 
-void bin_read(FILE *f, int64_t i, void *data, uint64_t n) {
-  uint64_t bs = bin_block_size(f);
+void bin_read(FILE *f, int_t i, void *data, uint_t n) {
+  uint_t bs = bin_block_size(f);
 
   assert(0 <= i && (i + n) <= bin_length(f));
 
@@ -116,9 +118,9 @@ void bin_read(FILE *f, int64_t i, void *data, uint64_t n) {
 // data - The block_t buffer to write from
 // n - The number of elements to write from the buffer
 
-void bin_write(FILE *f, int64_t i, void *data, uint64_t n) {
-  uint64_t l = bin_length(f);
-  uint64_t bs = bin_block_size(f);
+void bin_write(FILE *f, int_t i, void *data, uint_t n) {
+  uint_t l = bin_length(f);
+  uint_t bs = bin_block_size(f);
 
   assert(0 <= i && i <= l);
 
@@ -140,9 +142,9 @@ void bin_write(FILE *f, int64_t i, void *data, uint64_t n) {
 // data - The blocks to append to the file
 // n - The number of block to be appended
 
-void bin_append(FILE *f, void *data, uint64_t n) {
-  uint64_t l = bin_length(f);
-  uint64_t bs = bin_block_size(f);
+void bin_append(FILE *f, void *data, uint_t n) {
+  uint_t l = bin_length(f);
+  uint_t bs = bin_block_size(f);
 
   fseek(f, index_bytes(l, bs), SEEK_SET);
   fwrite(data, bs, n, f);
@@ -159,13 +161,13 @@ void bin_append(FILE *f, void *data, uint64_t n) {
 // data - The blocks to insert into the file
 // n - The number of blocks to be inserted
 
-void bin_insert(FILE *f, int64_t i, void *data, uint64_t n) {
-  uint64_t l = bin_length(f);
-  uint64_t bs = bin_block_size(f);
+void bin_insert(FILE *f, int_t i, void *data, uint_t n) {
+  uint_t l = bin_length(f);
+  uint_t bs = bin_block_size(f);
 
   assert(0 <= i && i <= l);
 
-  uint64_t tmp_n = (l - i) * bs;
+  uint_t tmp_n = (l - i) * bs;
 
   uint8_t tmp[tmp_n];
 
@@ -187,8 +189,8 @@ void bin_insert(FILE *f, int64_t i, void *data, uint64_t n) {
 //
 // return - The length / number of entries in the file
 
-uint64_t bin_length(FILE *f) {
-  uint64_t n = 0;
+uint_t bin_length(FILE *f) {
+  uint_t n = 0;
 
   fseek(f, offsetof(bin_meta_t, length), SEEK_SET);
   fread(&n, member_sizeof(bin_meta_t, length), 1, f);
@@ -204,8 +206,8 @@ uint64_t bin_length(FILE *f) {
 //
 // return - The block size for the entries in the file
 
-uint64_t bin_block_size(FILE *f) {
-  uint64_t n = 0;
+uint_t bin_block_size(FILE *f) {
+  uint_t n = 0;
 
   fseek(f, offsetof(bin_meta_t, block_size), SEEK_SET);
   fread(&n, member_sizeof(bin_meta_t, block_size), 1, f);
@@ -224,14 +226,14 @@ uint64_t bin_block_size(FILE *f) {
 //          The returned value is -( index + 1 ) where index is that of the
 //          first element greater than k or bin_length().
 
-int64_t bin_search(FILE *f, bin_key_t k) {
-  uint64_t origin = ftell(f);
+int_t bin_search(FILE *f, bin_key_t k) {
+  uint_t origin = ftell(f);
 
-  int64_t l = 0;
-  int64_t r = bin_length(f) - 1;
-  int64_t m;
+  int_t l = 0;
+  int_t r = bin_length(f) - 1;
+  int_t m;
 
-  uint64_t bs = bin_block_size(f);
+  uint_t bs = bin_block_size(f);
 
   bin_key_t key;
 
@@ -268,7 +270,7 @@ int64_t bin_search(FILE *f, bin_key_t k) {
 // return - The index remapped the binary file. If the index is already
 // positive, then no operation occurrs.
 
-uint64_t bin_fuzzy_index(int64_t i) { return (i < 0) ? -(i + 1) : i; }
+uint_t bin_fuzzy_index(int_t i) { return (i < 0) ? -(i + 1) : i; }
 
 // bin_write_length()
 //
@@ -277,7 +279,7 @@ uint64_t bin_fuzzy_index(int64_t i) { return (i < 0) ? -(i + 1) : i; }
 // f - The file to be written to
 // count - The length to be written to the file
 
-static void bin_write_length(FILE *f, uint64_t length) {
+static void bin_write_length(FILE *f, uint_t length) {
   fseek(f, offsetof(bin_meta_t, length), SEEK_SET);
   fwrite(&length, member_sizeof(bin_meta_t, length), 1, f);
 }
@@ -289,7 +291,7 @@ static void bin_write_length(FILE *f, uint64_t length) {
 // f - The file to be written to
 // count - The block size to be written to the file
 
-static void bin_write_block_size(FILE *f, uint64_t block_size) {
+static void bin_write_block_size(FILE *f, uint_t block_size) {
   fseek(f, offsetof(bin_meta_t, block_size), SEEK_SET);
   fwrite(&block_size, member_sizeof(bin_meta_t, block_size), 1, f);
 }

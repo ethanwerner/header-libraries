@@ -4,14 +4,11 @@
 #define ANN_H
 
 #include <stdint.h>
+#include "./type.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-typedef double fp_t;
-typedef uint32_t uint_t;
-typedef int32_t int_t;
 
 typedef enum {
   IDENTITY,

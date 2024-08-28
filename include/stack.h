@@ -1,23 +1,22 @@
 #ifndef STACK_H
 #define STACK_H
 
+#include "./type.h"
+#include <assert.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdio.h>
-
-typedef uint64_t uint_t;
-typedef int64_t int_t;
-typedef double fp_t;
+#include <stdlib.h>
+#include <string.h>
 
 typedef struct stack {
-  uint_t size;
-  uint_t capacity;
-  stack_value_t *zero;
   stack_value_t *data;
   stack_value_t *head;
+  uint_t size;
+  uint_t capacity;
 } stack_t;
 
-stack_t *stack_init(uint_t);
+void stack_init(stack_t *);
+stack_t *stack_from_array(stack_value_t *, uint_t);
 void stack_push(stack_t *, stack_value_t);
 stack_value_t stack_pop(stack_t *);
 stack_value_t stack_peek(stack_t *);
@@ -26,13 +25,25 @@ stack_value_t stack_peek(stack_t *);
 
 #ifdef STACK_IMPLEMENTATION
 
-stack_t *stack_init(uint_t capacity) {
-  stack_t *stack = calloc(1, sizeof(stack_t));
+const stack_value_t ZERO = 0;
+
+void stack_init(stack_t *stack) {
+  if (stack->capacity == 0) {
+    stack->capacity = 16;
+  }
 
   stack->size = 0;
-  stack->capacity = capacity;
-  stack->zero = calloc(1, sizeof(stack_value_t));
-  stack->data = calloc(capacity, sizeof(stack_value_t));
+  stack->data = calloc(stack->capacity, sizeof(stack_value_t));
+  stack->head = stack->data;
+}
+
+stack_t *stack_from_array(stack_value_t *array, uint_t size) {
+  stack_t *stack = calloc(1, sizeof(stack_t));
+
+  stack->size = size;
+  stack->capacity = size;
+  stack->data = calloc(size, sizeof(stack_value_t));
+  memcpy(stack->data, array, sizeof(stack_value_t) * size);
   stack->head = stack->data;
 
   return stack;
@@ -43,32 +54,31 @@ void stack_push(stack_t *stack, stack_value_t x) {
     stack->capacity *= 2;
     stack->data = realloc(stack->data, sizeof(stack_value_t) * stack->capacity);
     stack->head = &(stack->data[stack->size - 1]);
-    
   }
 
-  stack->data[stack->size] = x;
-  stack->size++;
+  *stack->head = x;
   stack->head++;
+  stack->size++;
 }
 
 stack_value_t stack_pop(stack_t *stack) {
-    if(stack->size == 0) {
-       return *(stack->zero); 
-    }
+  if (stack->size == 0) {
+    return ZERO;
+  }
 
-    stack_value_t x = *(stack->head);
-    stack->size--;
-    stack->head--;
+  stack_value_t x = stack->head[-1];
+  stack->size--;
+  stack->head--;
 
-    return x;
+  return x;
 }
 
 stack_value_t stack_peek(stack_t *stack) {
-    if(stack->size == 0) {
-       return *(stack->zero); 
-    }    
+  if (stack->size == 0) {
+    return ZERO;
+  }
 
-    return *(stack->head);
+  return stack->head[-1];
 }
 
 #endif

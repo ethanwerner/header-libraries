@@ -2,11 +2,7 @@
 
 The following libraries are *highly* experimental and should be treated as such. The intent of this repository is archival in nature. While I do use many of the following libraries in my projects, they are not production ready.
 
-The inspiration for this codebase, and the many others like it, comes from [Sean Barrett's](https://www.nothings.org/) fantastic [stb](https://github.com/nothings/stb) and [single_file_libs](https://github.com/nothings/single_file_libs) repositories.
-
 Please feel free to create issues, and pull requests are always welcome.
-
-All libraries marked with a * are currently in progress.
 
 ## ann.h - Artifical Neural Network
 
@@ -71,9 +67,19 @@ A free-list based memory pool. The pool has a fixed size after allocation.
 
 **Note:** The size of a block must be greater than or equal to ```sizeof(void *)```
 
-## * ufo.h - Universal Functions Originator
+## stack.h - Stack Implementation
 
- An implementation of the symbolic regression technique known as a Universal Functions Originator. The original paper can be found [here](https://doi.org/10.1016/j.asoc.2020.106417).
+A stack implementation to be used with pushdown.h
+
+**Note:** A pop operation on an empty stack will return 0/NULL.
+
+## pushdown.h - A Pushdown/Stack Automata
+
+This file provides an implementation of a pushdown/stack automata.
+
+## ufo.h - Universal Functions Originator
+
+ An implementation of the symbolic regression technique known as a Universal Functions Originator. The originating paper can be found [here](https://doi.org/10.1016/j.asoc.2020.106417).
 
 ## uri.h - URI Builder
 
