@@ -1,8 +1,6 @@
 # C Header Libraries
 
-The following libraries are *highly* experimental and should be treated as such. The intent of this repository is archival in nature. While I do use many of the following libraries in my projects, they are not production ready.
-
-Please feel free to create issues, and pull requests are always welcome.
+The following libraries are *highly* experimental and should be treated as such. The intent of this repository is archival in nature. Although I do use many of the following libraries in my projects, they are not production ready.
 
 ## ann.h - Artifical Neural Network
 
